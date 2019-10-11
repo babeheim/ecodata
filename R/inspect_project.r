@@ -33,6 +33,7 @@ inspect_project <- function(path, write_reports = TRUE) {
   ############################
   # project initialization checks
 
+  # bug: what if the ecodata project is *inside* a git repo but isn't a git repo, e.g. brian's GPSLog
   out$is_git_repo <- file.exists(".git")
   out$has_gitignore <- file.exists(".gitignore")
   git_set_up <- out$is_git_repo & out$has_gitignore
@@ -138,14 +139,18 @@ inspect_project <- function(path, write_reports = TRUE) {
     out$n_interviews_scanned <- length(pdfs)
     out$n_interviews_unscanned <- out$n_interviews_handcount - out$n_interviews_scanned
 
-    out$all_filenames_hashed <- all(nchar(basename(pdfs)) == 11)
+    out$scanning_complete <- FALSE
+    if (!is.na(out$n_interviews_unscanned)) out$scanning_complete <- out$n_interviews_handcount == out$n_interviews_scanned
+
+    out$all_pdfs_hashed <- NA
+    if (length(pdfs) > 0) out$all_pdfs_hashed <- all(nchar(basename(pdfs)) == 11)
 
     # inspect completed yamls in 2_transcription1
 
     out$n_transcription1_transcribed <- 0
-    out$transcription1_yamls_named_correctly <- FALSE
-    out$transcription1_yamls_valid <- FALSE
-    out$transcription1_complete <- FALSE
+    out$transcription1_yamls_named_correctly <- NA
+    out$transcription1_yamls_valid <- NA
+    out$transcription1_complete <- NA
 
     yamls1 <- c(
       list.files("./1_primary_sources/2_transcription1/1_pdf/0_completed",
@@ -156,7 +161,7 @@ inspect_project <- function(path, write_reports = TRUE) {
     out$n_transcription1_transcribed <- length(unique(basename(yamls1)))
     if (out$n_transcription1_transcribed > 0) {
       files <- yamls1
-      files %>% basename() %>% substr(1, 7) -> file_hashes
+      files %>% basename() %>% substr(1, 7) -> yaml_filename_hashes
       loads <- rep(NA, length(files))
       hash_ok <- rep(NA, length(files))
       transcriber_ok <- rep(NA, length(files))
@@ -166,7 +171,7 @@ inspect_project <- function(path, write_reports = TRUE) {
         if (loads[i]) {
           data <- read_yaml(files[i])
           hash_ok[i] <- !bad_hash(data, hash_length = 7) &
-            data$pdf_hash == file_hashes[i]
+            data$pdf_hash == yaml_filename_hashes[i]
           transcriber_ok[i] <- !bad_transcriber(data)
     #     stamp_ok[i] <- !bad_stamp(data)
         }
@@ -183,10 +188,10 @@ inspect_project <- function(path, write_reports = TRUE) {
       if (any(!transcriber_ok, na.rm = TRUE)) {
         print(paste("missing transcriber information:", files[!transcriber_ok]))
       }
-      out$transcription1_yamls_named_correctly <- all(file_hashes %in% pdf_hashes)
+      out$transcription1_yamls_named_correctly <- all(yaml_filename_hashes %in% pdf_hashes)
       out$transcription1_yamls_valid <- out$transcription1_yamls_named_correctly &
         all(loads) & all(hash_ok) & all(transcriber_ok)
-      out$transcription1_complete <- all(pdf_hashes %in% file_hashes) &
+      out$transcription1_complete <- all(pdf_hashes %in% yaml_filename_hashes) &
         out$transcription1_yamls_valid
       # silke wants the transcriber names for each transcription job separated here!
     }
@@ -196,9 +201,9 @@ inspect_project <- function(path, write_reports = TRUE) {
     # inspect completed yamls in 2_transcription2
 
     out$n_transcription2_transcribed <- 0
-    out$transcription2_yamls_named_correctly <- FALSE
-    out$transcription2_yamls_valid <- FALSE
-    out$transcription2_complete <- FALSE
+    out$transcription2_yamls_named_correctly <- NA
+    out$transcription2_yamls_valid <- NA
+    out$transcription2_complete <- NA
 
     yamls2 <- c(
       list.files("./1_primary_sources/2_transcription2/1_pdf/0_completed",
@@ -209,7 +214,7 @@ inspect_project <- function(path, write_reports = TRUE) {
     out$n_transcription2_transcribed <- length(unique(basename(yamls2)))
     if (out$n_transcription2_transcribed > 0) {
       files <- yamls2
-      files %>% basename() %>% substr(1, 7) -> file_hashes
+      files %>% basename() %>% substr(1, 7) -> yaml_filename_hashes
       loads <- rep(NA, length(files))
       hash_ok <- rep(NA, length(files))
       transcriber_ok <- rep(NA, length(files))
@@ -219,7 +224,7 @@ inspect_project <- function(path, write_reports = TRUE) {
         if (loads[i]) {
           data <- read_yaml(files[i])
           hash_ok[i] <- !bad_hash(data, hash_length = 7) &
-            data$pdf_hash == file_hashes[i]
+            data$pdf_hash == yaml_filename_hashes[i]
           transcriber_ok[i] <- !bad_transcriber(data)
      #    stamp_ok[i] <- !bad_stamp(data)
         }
@@ -236,26 +241,26 @@ inspect_project <- function(path, write_reports = TRUE) {
       if (any(!transcriber_ok, na.rm = TRUE)) {
         print(paste("missing transcriber information:", files[!transcriber_ok]))
       }
-      out$transcription2_yamls_named_correctly <- all(file_hashes %in% pdf_hashes)
+      out$transcription2_yamls_named_correctly <- all(yaml_filename_hashes %in% pdf_hashes)
       out$transcription2_yamls_valid <- out$transcription2_yamls_named_correctly &
         all(loads) & all(hash_ok) & all(transcriber_ok)
-      out$transcription2_complete <- all(pdf_hashes %in% file_hashes) &
+      out$transcription2_complete <- all(pdf_hashes %in% yaml_filename_hashes) &
         out$transcription2_yamls_valid
     }
 
     # inspect completed yamls in 3_transcription_merged
 
     out$n_transcription_merged <- 0
-    out$merged_yamls_named_correctly <- FALSE
-    out$merged_yamls_valid <- FALSE
-    out$transcription_merge_complete <- FALSE
+    out$merged_yamls_named_correctly <- NA
+    out$merged_yamls_valid <- NA
+    out$transcription_merged_complete <- NA
 
     yamls_merged <- list.files("./1_primary_sources/3_transcription_merged/2_yaml",
         pattern = ".yaml", recursive = TRUE, full.names = TRUE)
     out$n_transcription_merged <- length(unique(basename(yamls_merged)))
     if (out$n_transcription_merged > 0) {
       files <- yamls_merged
-      files %>% basename() %>% substr(1, 7) -> file_hashes
+      files %>% basename() %>% substr(1, 7) -> yaml_filename_hashes
       loads <- rep(NA, length(files))
       hash_ok <- rep(NA, length(files))
       transcriber_ok <- rep(NA, length(files))
@@ -266,7 +271,7 @@ inspect_project <- function(path, write_reports = TRUE) {
         if (loads[i]) {
           data <- read_yaml(files[i])
           hash_ok[i] <- !bad_hash(data, hash_length = 7) &
-            data$pdf_hash == file_hashes[i]
+            data$pdf_hash == yaml_filename_hashes[i]
           transcriber_ok[i] <- !bad_transcriber(data)
      #    reviewer_ok[i] <- !bad_reviewer(data)
      #    stamp_ok[i] <- !bad_stamp(data)
@@ -287,25 +292,18 @@ inspect_project <- function(path, write_reports = TRUE) {
       if (any(!reviewer_ok, na.rm = TRUE)) {
         print(paste("these files have missing reviewer information", files[!reviewer_ok]))
       }
-      out$merged_yamls_named_correctly <- all(file_hashes %in% pdf_hashes)
+      out$merged_yamls_named_correctly <- all(yaml_filename_hashes %in% pdf_hashes)
       out$merged_yamls_valid <- out$merged_yamls_named_correctly & all(loads) &
         all(hash_ok) & all(transcriber_ok)
-      out$transcription_merge_complete <- all(pdf_hashes %in% file_hashes) & out$merged_yamls_valid
+      out$transcription_merged_complete <- all(pdf_hashes %in% yaml_filename_hashes) & out$merged_yamls_valid
 
     }
 
-    # define 'complete' depending on single or double transcription
-
-    if (length(yamls2) > 0) {
-      files <- list.files("./1_primary_sources/3_transcription_merged/2_yaml",
-          pattern = ".yaml", recursive = TRUE, full.names = TRUE)
+    if (is.na(out$transcription_merged_complete)) {
+      out$transcription_complete <- out$transcription1_complete
     } else {
-      files <- list.files("./1_primary_sources/2_transcription1/2_yaml",
-        pattern = ".yaml", recursive = TRUE, full.names = TRUE)
+      out$transcription_complete <- out$transcription_merged_complete
     }
-    files %>% basename() %>% substr(1, 7) -> file_hashes
-    out$transcription_complete <- all(pdf_hashes %in% file_hashes)
-
 
     ############################
     # extract interviews.csv data

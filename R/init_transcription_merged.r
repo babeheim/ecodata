@@ -1,6 +1,8 @@
 
 init_transcription_merged <- function(ignore_capitalizations = TRUE) {
 
+  # need failure conditions
+
   dir_init("./3_transcription_merged")
   dir_init("./3_transcription_merged/1_diff")
   dir_init("./3_transcription_merged/1_yaml")
@@ -8,8 +10,8 @@ init_transcription_merged <- function(ignore_capitalizations = TRUE) {
 
   # check that every file is duplicated
 
-  yamls1 <- list.files("./2_transcription1/yaml")
-  yamls2 <- list.files("./2_transcription2/yaml")
+  yamls1 <- list.files("./2_transcription1/2_yaml")
+  yamls2 <- list.files("./2_transcription2/2_yaml")
 
   identical(yamls1, yamls2)
 
@@ -28,7 +30,6 @@ init_transcription_merged <- function(ignore_capitalizations = TRUE) {
     gsub("\\.yaml$", ".diff", basename(yamls2)))
 
   for (i in 1:length(diffnames)) {
-
     if (ignore_capitalizations) {
       system(paste("diff -aiEbw --suppress-common-lines -c", yamls1[i], yamls2[i],
       ">", diffnames[i])) 

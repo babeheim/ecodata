@@ -40,10 +40,6 @@ init_project <- function(path = ".", double_transcription = TRUE) {
       dir_init("./1_primary_sources/2_transcription2")
       dir_init("./1_primary_sources/2_transcription2/1_pdf")
       dir_init("./1_primary_sources/2_transcription2/2_yaml")
-      dir_init("./1_primary_sources/3_transcription_merged")
-      dir_init("./1_primary_sources/4_relational_tables")
-    } else {
-      dir_init("./1_primary_sources/3_relational_tables")
     }
     dir_init("./2_data_cleaning")
     dir_init("./3_relational_tables")
