@@ -1,5 +1,5 @@
 
-inspect_project <- function(path, write_reports = TRUE) {
+inspect_project <- function(path, write_reports = FALSE, outdir = ".") {
 
   current_directory <- getwd()
   setwd(path)
@@ -66,7 +66,7 @@ inspect_project <- function(path, write_reports = TRUE) {
       commits$date <- substr(commits$timestamp, 1, 10)
       commits$project_name <- meta$project_name
       commits$principal_investigator <- meta$principal_investigator
-      if (write_reports) write.csv(commits, "./0_metadata/project_commits.csv",
+      if (write_reports) write.csv(commits, file.path(outdir, "project_commits.csv"),
         row.names = FALSE)
     }
 
@@ -121,7 +121,7 @@ inspect_project <- function(path, write_reports = TRUE) {
         dirname, type, full_filename, size, ctime)
 
       if (write_reports) write.csv(project_files,
-        "./0_metadata/project_files.csv", row.names = FALSE)
+        file.path(outdir, "project_files.csv"), row.names = FALSE)
 
       out$date_first_commit <- as.character(as.Date(min(commits$timestamp)))
       out$date_last_commit <- as.character(as.Date(max(commits$timestamp)))
@@ -343,7 +343,7 @@ inspect_project <- function(path, write_reports = TRUE) {
 
   # some kind of global completion check?
 
-  if (write_reports) write_json(out, "./0_metadata/project_report.json", pretty = TRUE)
+  if (write_reports) write_json(out, file.path(outdir, "project_report.json"), pretty = TRUE)
   setwd(current_directory)
 
   return(out)
