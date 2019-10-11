@@ -124,8 +124,10 @@ inspect_project <- function(path, write_reports = FALSE, outdir = ".") {
       if (write_reports) write.csv(project_files,
         file.path(outdir, "project_files.csv"), row.names = FALSE)
 
-      out$date_first_commit <- as.character(as.Date(min(commits$timestamp)))
-      out$date_last_commit <- as.character(as.Date(max(commits$timestamp)))
+      if (out$n_commits > 0) {
+        out$date_first_commit <- as.character(as.Date(min(commits$timestamp)))
+        out$date_last_commit <- as.character(as.Date(max(commits$timestamp)))
+      }
 
     }
 
