@@ -52,14 +52,15 @@ inspect_project <- function(path, write_reports = FALSE, outdir = ".") {
     ############################
     # save the commit history
 
-    commit_log_export <- "git log --date=format:\'%Y-%m-%d %H:%M:%S\' --pretty=format:\'{%n \
-      \"commit\": \"%H\",%n \"commit_short\": \"%h\",%n \"author\": \"%aN\",%n \
-      \"timestamp\": \"%ad\",%n \"message\": \"%s\"%n},\' $@ | perl -pe \'BEGIN{print \"[\"}; \
-      END{print \"]\n\"}\' | perl -pe \'s/},]/}]/\'"
+    # huge error: what happens if there's double quotes in the git messages??
+    # commit_log_export <- "git log --date=format:\'%Y-%m-%d %H:%M:%S\' --pretty=format:\'{%n \
+    #   \"commit\": \"%H\",%n \"commit_short\": \"%h\",%n \"author\": \"%aN\",%n \
+    #   \"timestamp\": \"%ad\",%n \"message\": \"%s\"%n},\' $@ | perl -pe \'BEGIN{print \"[\"}; \
+    #   END{print \"]\n\"}\' | perl -pe \'s/},]/}]/\'"
 
-    system(commit_log_export, intern = TRUE) %>%
-      fromJSON() %>% bind_rows() %>% as.data.frame() -> commits
-    out$n_commits <- nrow(commits)
+    # system(commit_log_export, intern = TRUE) %>%
+    #   fromJSON() %>% bind_rows() %>% as.data.frame() -> commits
+    # out$n_commits <- nrow(commits)
 
     if (out$n_commits > 0) {
       commits$timestamp <- as.POSIXlt(commits$timestamp)
