@@ -4,9 +4,10 @@ init_transcription_merged <- function(ignore_capitalizations = TRUE) {
   # need failure conditions
 
   dir_init("./3_transcription_merged")
+  dir_init("./3_transcription_merged/0_completed")
   dir_init("./3_transcription_merged/1_diff")
-  dir_init("./3_transcription_merged/1_yaml")
   dir_init("./3_transcription_merged/1_pdf")
+  dir_init("./3_transcription_merged/2_yaml")
 
   # check that every file is duplicated
 
