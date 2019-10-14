@@ -60,10 +60,11 @@ inspect_project <- function(path, write_reports = FALSE, outdir = ".") {
 
     # system(commit_log_export, intern = TRUE) %>%
     #   fromJSON() %>% bind_rows() %>% as.data.frame() -> commits
-    # out$n_commits <- nrow(commits)
+    commits <- gitsum::parse_log_simple() %>% as.data.frame()
+    out$n_commits <- nrow(commits)
 
     if (out$n_commits > 0) {
-      commits$timestamp <- as.POSIXlt(commits$timestamp)
+      commits$timestamp <- as.POSIXlt(commits$date)
       commits$date <- substr(commits$timestamp, 1, 10)
       commits$project_name <- meta$project_name
       commits$principal_investigator <- meta$principal_investigator
