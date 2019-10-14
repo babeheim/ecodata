@@ -2,6 +2,7 @@
 test_that("complete projects are complete", {
   log <- inspect_project("./finished_double_transcription", write_reports = FALSE)
   expect_true(log$project_structure_correct)
+  expect_true(log$n_commits == 24)
   expect_true(log$all_pdfs_hashed)
   expect_true(log$transcription1_complete)
   expect_true(log$transcription2_complete)
@@ -18,7 +19,7 @@ test_that("complete projects are complete", {
 
 test_that("unstaged changes detected", {
   log <- inspect_project("./unstaged_changes", write_reports = FALSE)
-  expect_false(out$all_changes_committed)
+  expect_false(log$all_changes_committed)
 })
 
 test_that("no metadata returns an error", {
