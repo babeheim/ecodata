@@ -161,30 +161,32 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
       loads <- rep(NA, length(files))
       hash_ok <- rep(NA, length(files))
       transcriber_ok <- rep(NA, length(files))
+      reviewer_ok <- rep(NA, length(files))
       stamp_ok <- rep(NA, length(files))
       for (i in 1:length(files)) {
         loads[i] <- yamltools::yaml_loads(files[i])
         if (loads[i]) {
-          data <- read_yaml(files[i])
+          data <- yamltools::read_yaml(files[i])
+          transcriber_ok[i] <- !bad_transcriber(data$transcriber)
           if ("pdf_hash" %in% names(data)) {
-            hash_ok[i] <- !bad_hash(data, hash_length = 7) &
-              data$pdf_hash == yaml_filename_hashes[i]
+            hash_ok[i] <- !bad_hash(data$pdf_hash, hash_length = 7)
           }
-          transcriber_ok[i] <- !bad_transcriber(data)
-    #     stamp_ok[i] <- !bad_stamp(data)
+          if ("stamp_num" %in% names(data)) {
+            stamp_ok[i] <- !bad_stamp(data$stamp_num)
+          }
         }
       }
       if (any(!loads, na.rm = TRUE)) {
         print(paste("invalid yamls:", files[!loads]))
       }
-      if (any(!hash_ok, na.rm = TRUE)) {
-        print(paste("invalid pdf_hash values or filenames:", files[!hash_ok]))
-      }
-      if (any(!stamp_ok, na.rm = TRUE)) {
-        print(paste("invalid stamp number:", files[!hash_ok]))
-      }
       if (any(!transcriber_ok, na.rm = TRUE)) {
         print(paste("missing transcriber information:", files[!transcriber_ok]))
+      }
+      if (any(!hash_ok, na.rm = TRUE)) {
+        print(paste("invalid pdf_hash values", files[!hash_ok]))
+      }
+      if (any(!stamp_ok, na.rm = TRUE)) {
+        print(paste("invalid stamp number:", files[!stamp_ok]))
       }
       out$transcription1_yamls_named_correctly <- all(yaml_filename_hashes %in% pdf_hashes)
       out$transcription1_yamls_valid <- out$transcription1_yamls_named_correctly &
@@ -216,30 +218,32 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
       loads <- rep(NA, length(files))
       hash_ok <- rep(NA, length(files))
       transcriber_ok <- rep(NA, length(files))
+      reviewer_ok <- rep(NA, length(files))
       stamp_ok <- rep(NA, length(files))
       for (i in 1:length(files)) {
         loads[i] <- yamltools::yaml_loads(files[i])
         if (loads[i]) {
-          data <- read_yaml(files[i])
+          data <- yamltools::read_yaml(files[i])
+          transcriber_ok[i] <- !bad_transcriber(data$transcriber)
           if ("pdf_hash" %in% names(data)) {
-            hash_ok[i] <- !bad_hash(data, hash_length = 7) &
-              data$pdf_hash == yaml_filename_hashes[i]
+            hash_ok[i] <- !bad_hash(data$pdf_hash, hash_length = 7)
           }
-          transcriber_ok[i] <- !bad_transcriber(data)
-    #     stamp_ok[i] <- !bad_stamp(data)
+          if ("stamp_num" %in% names(data)) {
+            stamp_ok[i] <- !bad_stamp(data$stamp_num)
+          }
         }
       }
       if (any(!loads, na.rm = TRUE)) {
         print(paste("invalid yamls:", files[!loads]))
       }
-      if (any(!hash_ok, na.rm = TRUE)) {
-        print(paste("invalid pdf_hash values or filenames:", files[!hash_ok]))
-      }
-      if (any(!stamp_ok, na.rm = TRUE)) {
-        print(paste("invalid stamp number:", files[!hash_ok]))
-      }
       if (any(!transcriber_ok, na.rm = TRUE)) {
         print(paste("missing transcriber information:", files[!transcriber_ok]))
+      }
+      if (any(!hash_ok, na.rm = TRUE)) {
+        print(paste("invalid pdf_hash values", files[!hash_ok]))
+      }
+      if (any(!stamp_ok, na.rm = TRUE)) {
+        print(paste("invalid stamp number:", files[!stamp_ok]))
       }
       out$transcription2_yamls_named_correctly <- all(yaml_filename_hashes %in% pdf_hashes)
       out$transcription2_yamls_valid <- out$transcription2_yamls_named_correctly &
@@ -269,29 +273,27 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
       for (i in 1:length(files)) {
         loads[i] <- yamltools::yaml_loads(files[i])
         if (loads[i]) {
-          data <- read_yaml(files[i])
+          data <- yamltools::read_yaml(files[i])
+          transcriber_ok[i] <- !bad_transcriber(data$transcriber)
           if ("pdf_hash" %in% names(data)) {
-            hash_ok[i] <- !bad_hash(data, hash_length = 7) &
-              data$pdf_hash == yaml_filename_hashes[i]
+            hash_ok[i] <- !bad_hash(data$pdf_hash, hash_length = 7)
           }
-          transcriber_ok[i] <- !bad_transcriber(data)
-    #     stamp_ok[i] <- !bad_stamp(data)
+          if ("stamp_num" %in% names(data)) {
+            stamp_ok[i] <- !bad_stamp(data$stamp_num)
+          }
         }
       }
       if (any(!loads, na.rm = TRUE)) {
         print(paste("invalid yamls:", files[!loads]))
       }
-      if (any(!hash_ok, na.rm = TRUE)) {
-        print(paste("invalid pdf_hash values or filenames:", files[!hash_ok]))
-      }
-      if (any(!stamp_ok, na.rm = TRUE)) {
-        print(paste("invalid stamp number:", files[!hash_ok]))
-      }
       if (any(!transcriber_ok, na.rm = TRUE)) {
         print(paste("missing transcriber information:", files[!transcriber_ok]))
       }
-      if (any(!reviewer_ok, na.rm = TRUE)) {
-        print(paste("these files have missing reviewer information", files[!reviewer_ok]))
+      if (any(!hash_ok, na.rm = TRUE)) {
+        print(paste("invalid pdf_hash values", files[!hash_ok]))
+      }
+      if (any(!stamp_ok, na.rm = TRUE)) {
+        print(paste("invalid stamp number:", files[!stamp_ok]))
       }
       out$merged_yamls_named_correctly <- all(yaml_filename_hashes %in% pdf_hashes)
       out$merged_yamls_valid <- out$merged_yamls_named_correctly & all(loads) &
