@@ -1,5 +1,5 @@
 
-inspect_project <- function(path, write_reports = FALSE, outdir = ".") {
+inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
 
   current_directory <- getwd()
   setwd(path)
@@ -166,8 +166,10 @@ inspect_project <- function(path, write_reports = FALSE, outdir = ".") {
         loads[i] <- yamltools::yaml_loads(files[i])
         if (loads[i]) {
           data <- read_yaml(files[i])
-          hash_ok[i] <- !bad_hash(data, hash_length = 7) &
-            data$pdf_hash == yaml_filename_hashes[i]
+          if ("pdf_hash" %in% names(data)) {
+            hash_ok[i] <- !bad_hash(data, hash_length = 7) &
+              data$pdf_hash == yaml_filename_hashes[i]
+          }
           transcriber_ok[i] <- !bad_transcriber(data)
     #     stamp_ok[i] <- !bad_stamp(data)
         }
@@ -219,10 +221,12 @@ inspect_project <- function(path, write_reports = FALSE, outdir = ".") {
         loads[i] <- yamltools::yaml_loads(files[i])
         if (loads[i]) {
           data <- read_yaml(files[i])
-          hash_ok[i] <- !bad_hash(data, hash_length = 7) &
-            data$pdf_hash == yaml_filename_hashes[i]
+          if ("pdf_hash" %in% names(data)) {
+            hash_ok[i] <- !bad_hash(data, hash_length = 7) &
+              data$pdf_hash == yaml_filename_hashes[i]
+          }
           transcriber_ok[i] <- !bad_transcriber(data)
-     #    stamp_ok[i] <- !bad_stamp(data)
+    #     stamp_ok[i] <- !bad_stamp(data)
         }
       }
       if (any(!loads, na.rm = TRUE)) {
@@ -266,11 +270,12 @@ inspect_project <- function(path, write_reports = FALSE, outdir = ".") {
         loads[i] <- yamltools::yaml_loads(files[i])
         if (loads[i]) {
           data <- read_yaml(files[i])
-          hash_ok[i] <- !bad_hash(data, hash_length = 7) &
-            data$pdf_hash == yaml_filename_hashes[i]
+          if ("pdf_hash" %in% names(data)) {
+            hash_ok[i] <- !bad_hash(data, hash_length = 7) &
+              data$pdf_hash == yaml_filename_hashes[i]
+          }
           transcriber_ok[i] <- !bad_transcriber(data)
-     #    reviewer_ok[i] <- !bad_reviewer(data)
-     #    stamp_ok[i] <- !bad_stamp(data)
+    #     stamp_ok[i] <- !bad_stamp(data)
         }
       }
       if (any(!loads, na.rm = TRUE)) {
