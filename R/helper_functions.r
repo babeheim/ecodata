@@ -1,4 +1,47 @@
 
+bad_transcriber <- function(transcriber) {
+  if (is.null(transcriber)) {
+    out <- TRUE
+  } else {
+    transcriber <- gsub("'", "", transcriber)
+    out <- (is.na(transcriber) | nchar(transcriber) == 0)
+  }
+  return(out)
+}
+
+bad_hash <- function(hash, hash_length = 7) {
+  if (is.null(hash)) {
+    out <- TRUE
+  } else {
+    hash <- gsub("'", "", hash)
+    out <- nchar(hash) != hash_length
+  }
+  return(out)
+}
+
+bad_date <- function(date) {
+  if (is.null(date)) {
+    out <- TRUE
+  } else {
+    out <- is.na(as.Date(date, "%Y-%m-%d"))
+  }
+  return(out)
+}
+
+bad_stamp <- function(stamp_number) {
+  if (is.null(stamp_number)) {
+    out <- TRUE
+  } else {
+    out <- nchar(stamp_number) != 6 | is.na(as.numeric(stamp_number))
+  }
+  return(out)
+}
+
+nullToNA <- function(x) {
+  x[sapply(x, is.null)] <- NA
+  return(x)
+}
+
 dir_init <- function(path, verbose=FALSE){
   if(substr(path, 1, 2)!='./') stop('path argument must be formatted
     with "./" at beginning')
