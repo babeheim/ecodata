@@ -10,6 +10,9 @@ inspect_project <- function(path, write_reports = FALSE, outdir = ".") {
   }
   meta <- yamltools::read_yaml("./0_metadata/project_overview.yaml")
 
+  if (is.null(meta$n_interviews_handcount)) meta$n_interviews_handcount <- NA
+  if (is.null(meta$interview_date_key)) meta$interview_date_key <- NA
+
   ############################
   # initialize daemon report
 
@@ -311,8 +314,8 @@ inspect_project <- function(path, write_reports = FALSE, outdir = ".") {
       if (is.na(meta$interview_date_key) | !meta$interview_date_key %in% colnames(ints)) {
         print("interview date variable not found")
       } else {
-        out$interview_start_date = as.character(min(as.Date(ints[[meta$interview_date_key]]), na.rm = TRUE))
-        out$interview_end_date = as.character(max(as.Date(ints[[meta$interview_date_key]]), na.rm = TRUE))
+        out$interview_start_date = sort(as.character(ints[[meta$interview_date_key]]))[1]
+        out$interview_end_date = rev(sort(as.character(ints[[meta$interview_date_key]])))[1]
       }
 
       transcribers <- sort(unique(unlist(strsplit(ints$transcriber, ", "))))

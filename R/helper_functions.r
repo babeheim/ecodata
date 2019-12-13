@@ -1,4 +1,18 @@
 
+bad_transcriber <- function(data) {
+  transcriber <- data$transcriber
+  transcriber <- gsub("'", "", transcriber)
+  out <- (is.na(transcriber) | length(transcriber)==0)
+  return(out)
+}
+
+
+bad_hash <- function(data, hash_length = 7) {
+  hash <- gsub("'", "", data$pdf_hash)
+  out <- nchar(hash) != hash_length
+  return(out)
+}
+
 dir_init <- function(path, verbose=FALSE){
   if(substr(path, 1, 2)!='./') stop('path argument must be formatted
     with "./" at beginning')
