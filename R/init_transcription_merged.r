@@ -1,5 +1,5 @@
 
-init_transcription_merged <- function(ignore_capitalizations = TRUE) {
+init_transcription_merged <- function(ignore_capitalizations = TRUE, context = FALSE) {
 
   # need failure conditions
 
@@ -29,14 +29,26 @@ init_transcription_merged <- function(ignore_capitalizations = TRUE) {
   # create diff comparisons between yamls1 and yamls2
   diffnames <- paste0("./3_transcription_merged/",
     gsub("\\.yaml$", ".diff", basename(yamls2)))
-
-  for (i in 1:length(diffnames)) {
-    if (ignore_capitalizations) {
-      system(paste("diff -aiEbw --suppress-common-lines -c", yamls1[i], yamls2[i],
-      ">", diffnames[i])) 
-    } else {
-      system(paste("diff -aEbw --suppress-common-lines -c", yamls1[i], yamls2[i],
-      ">", diffnames[i])) 
+  
+  if (context) {
+    for (i in 1:length(diffnames)) {
+      if (ignore_capitalizations) {
+        system(paste("diff -aiEbw --suppress-common-lines -c", yamls1[i], yamls2[i],
+        ">", diffnames[i])) 
+      } else {
+        system(paste("diff -aEbw --suppress-common-lines -c", yamls1[i], yamls2[i],
+        ">", diffnames[i])) 
+      }
+    }
+  } else {
+    for (i in 1:length(diffnames)) {
+      if (ignore_capitalizations) {
+        system(paste("diff -aiEbw --suppress-common-lines", yamls1[i], yamls2[i],
+        ">", diffnames[i])) 
+      } else {
+        system(paste("diff -aEbw --suppress-common-lines", yamls1[i], yamls2[i],
+        ">", diffnames[i])) 
+      }
     }
   }
 
