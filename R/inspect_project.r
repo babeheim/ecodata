@@ -45,7 +45,7 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
   out$has_primary_sources_folder <- file.exists("./1_primary_sources")
   has_folders <- out$has_metadata_folder & out$has_primary_sources_folder
 
-  out$project_structure_correct <- git_set_up & has_folders
+  out$project_structure_correct <- has_folders
 
   if (out$project_structure_correct) {
 
@@ -131,7 +131,7 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
     # track transcription progress
 
     pdfs <- list.files("./1_primary_sources/1_pdf", full.names = TRUE,
-      pattern = "*.pdf$", recursive = TRUE)
+      pattern = "*.pdf$|*.PDF$", recursive = TRUE)
 
     pdf_hashes <- pdfs %>% basename %>% substr(1, 7)
 
@@ -162,7 +162,6 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
       files <- yamls1
       files %>% basename() %>% substr(1, 7) -> yaml_filename_hashes
       loads <- rep(NA, length(files))
-      hash_ok <- rep(NA, length(files))
       transcriber_ok <- rep(NA, length(files))
       reviewer_ok <- rep(NA, length(files))
       stamp_ok <- rep(NA, length(files))
@@ -171,9 +170,6 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
         if (loads[i]) {
           data <- yamltools::read_yaml(files[i])
           transcriber_ok[i] <- !bad_transcriber(data$transcriber)
-          if ("pdf_hash" %in% names(data)) {
-            hash_ok[i] <- !bad_hash(data$pdf_hash, hash_length = 7)
-          }
           if ("stamp_num" %in% names(data)) {
             stamp_ok[i] <- !bad_stamp(data$stamp_num)
           }
@@ -185,15 +181,12 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
       if (any(!transcriber_ok, na.rm = TRUE)) {
         print(paste("missing transcriber information:", files[!transcriber_ok]))
       }
-      if (any(!hash_ok, na.rm = TRUE)) {
-        print(paste("invalid pdf_hash values", files[!hash_ok]))
-      }
       if (any(!stamp_ok, na.rm = TRUE)) {
         print(paste("invalid stamp number:", files[!stamp_ok]))
       }
       out$transcription1_yamls_named_correctly <- all(yaml_filename_hashes %in% pdf_hashes)
       out$transcription1_yamls_valid <- out$transcription1_yamls_named_correctly &
-        all(loads) & all(hash_ok) & all(transcriber_ok)
+        all(loads) & all(transcriber_ok)
       out$transcription1_complete <- all(pdf_hashes %in% yaml_filename_hashes) &
         out$transcription1_yamls_valid
       # silke wants the transcriber names for each transcription job separated here!
@@ -219,7 +212,6 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
       files <- yamls2
       files %>% basename() %>% substr(1, 7) -> yaml_filename_hashes
       loads <- rep(NA, length(files))
-      hash_ok <- rep(NA, length(files))
       transcriber_ok <- rep(NA, length(files))
       reviewer_ok <- rep(NA, length(files))
       stamp_ok <- rep(NA, length(files))
@@ -228,9 +220,6 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
         if (loads[i]) {
           data <- yamltools::read_yaml(files[i])
           transcriber_ok[i] <- !bad_transcriber(data$transcriber)
-          if ("pdf_hash" %in% names(data)) {
-            hash_ok[i] <- !bad_hash(data$pdf_hash, hash_length = 7)
-          }
           if ("stamp_num" %in% names(data)) {
             stamp_ok[i] <- !bad_stamp(data$stamp_num)
           }
@@ -242,15 +231,12 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
       if (any(!transcriber_ok, na.rm = TRUE)) {
         print(paste("missing transcriber information:", files[!transcriber_ok]))
       }
-      if (any(!hash_ok, na.rm = TRUE)) {
-        print(paste("invalid pdf_hash values", files[!hash_ok]))
-      }
       if (any(!stamp_ok, na.rm = TRUE)) {
         print(paste("invalid stamp number:", files[!stamp_ok]))
       }
       out$transcription2_yamls_named_correctly <- all(yaml_filename_hashes %in% pdf_hashes)
       out$transcription2_yamls_valid <- out$transcription2_yamls_named_correctly &
-        all(loads) & all(hash_ok) & all(transcriber_ok)
+        all(loads) & all(transcriber_ok)
       out$transcription2_complete <- all(pdf_hashes %in% yaml_filename_hashes) &
         out$transcription2_yamls_valid
     }
@@ -269,7 +255,6 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
       files <- yamls_merged
       files %>% basename() %>% substr(1, 7) -> yaml_filename_hashes
       loads <- rep(NA, length(files))
-      hash_ok <- rep(NA, length(files))
       transcriber_ok <- rep(NA, length(files))
       reviewer_ok <- rep(NA, length(files))
       stamp_ok <- rep(NA, length(files))
@@ -278,9 +263,6 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
         if (loads[i]) {
           data <- yamltools::read_yaml(files[i])
           transcriber_ok[i] <- !bad_transcriber(data$transcriber)
-          if ("pdf_hash" %in% names(data)) {
-            hash_ok[i] <- !bad_hash(data$pdf_hash, hash_length = 7)
-          }
           if ("stamp_num" %in% names(data)) {
             stamp_ok[i] <- !bad_stamp(data$stamp_num)
           }
@@ -292,15 +274,11 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
       if (any(!transcriber_ok, na.rm = TRUE)) {
         print(paste("missing transcriber information:", files[!transcriber_ok]))
       }
-      if (any(!hash_ok, na.rm = TRUE)) {
-        print(paste("invalid pdf_hash values", files[!hash_ok]))
-      }
       if (any(!stamp_ok, na.rm = TRUE)) {
         print(paste("invalid stamp number:", files[!stamp_ok]))
       }
       out$merged_yamls_named_correctly <- all(yaml_filename_hashes %in% pdf_hashes)
-      out$merged_yamls_valid <- out$merged_yamls_named_correctly & all(loads) &
-        all(hash_ok) & all(transcriber_ok)
+      out$merged_yamls_valid <- out$merged_yamls_named_correctly & all(loads) & all(transcriber_ok)
       out$transcription_merged_complete <- all(pdf_hashes %in% yaml_filename_hashes) & out$merged_yamls_valid
 
     }

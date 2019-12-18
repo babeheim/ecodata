@@ -3,7 +3,6 @@ test_that("complete projects are complete", {
   log <- inspect_project("./finished_double_transcription", write_reports = FALSE)
   expect_true(log$project_structure_correct)
   expect_true(log$n_commits == 24)
-  expect_true(log$all_pdfs_hashed)
   expect_true(log$transcription1_complete)
   expect_true(log$transcription2_complete)
   expect_true(log$transcription_merged_complete)
@@ -11,7 +10,6 @@ test_that("complete projects are complete", {
 
   log <- inspect_project("./finished_single_transcription", write_reports = FALSE)
   expect_true(log$project_structure_correct)
-  expect_true(log$all_pdfs_hashed)
   expect_true(log$transcription1_complete)
   expect_true(log$transcription_complete)
 
@@ -28,7 +26,7 @@ test_that("no metadata returns an error", {
 
 test_that("bad structure is detected as such", {
   log <- inspect_project("./bad_structure", write_reports = FALSE)
-  expect_false(log$project_structure_correct)
+  expect_false(log$is_git_repo)
   expect_false("transcription_complete" %in% names(log))
 })
 
