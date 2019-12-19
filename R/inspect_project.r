@@ -141,15 +141,14 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
     out$scanning_complete <- FALSE
     if (!is.na(out$n_interviews_unscanned)) out$scanning_complete <- out$n_interviews_handcount == out$n_interviews_scanned
 
-    out$all_pdfs_hashed <- NA
-    if (length(pdfs) > 0) out$all_pdfs_hashed <- all(nchar(basename(pdfs)) == 11)
+    # separate the checks: check that hash inside yaml is same as filename, and also check that yaml has a pdf or whatever
 
     # inspect completed yamls in 2_transcription1
 
     out$n_transcription1_transcribed <- 0
     out$transcription1_yamls_named_correctly <- NA
     out$transcription1_yamls_valid <- NA
-    out$transcription1_complete <- NA
+    out$transcription1_complete <- FALSE
 
     yamls1 <- c(
       list.files("./1_primary_sources/2_transcription1/1_pdf/0_completed",
@@ -160,7 +159,7 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
     out$n_transcription1_transcribed <- length(unique(basename(yamls1)))
     if (out$n_transcription1_transcribed > 0) {
       files <- yamls1
-      files %>% basename() %>% substr(1, 7) -> yaml_filename_hashes
+      files %>% basename() %>% substr(1, 7) -> yaml_filename_hashes # change this to be arbitrary length
       loads <- rep(NA, length(files))
       transcriber_ok <- rep(NA, length(files))
       reviewer_ok <- rep(NA, length(files))
@@ -188,7 +187,7 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
       out$transcription1_yamls_valid <- out$transcription1_yamls_named_correctly &
         all(loads) & all(transcriber_ok)
       out$transcription1_complete <- all(pdf_hashes %in% yaml_filename_hashes) &
-        out$transcription1_yamls_valid
+        out$transcription1_yamls_valid & out$scanning_complete
       # silke wants the transcriber names for each transcription job separated here!
     }
 
@@ -199,7 +198,7 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
     out$n_transcription2_transcribed <- 0
     out$transcription2_yamls_named_correctly <- NA
     out$transcription2_yamls_valid <- NA
-    out$transcription2_complete <- NA
+    out$transcription2_complete <- FALSE
 
     yamls2 <- c(
       list.files("./1_primary_sources/2_transcription2/1_pdf/0_completed",
@@ -207,8 +206,9 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
       list.files("./1_primary_sources/2_transcription2/2_yaml",
         pattern = ".yaml", recursive = TRUE, full.names = TRUE)
     )
+    out$double_transcription_started <- length(yamls2) > 0
     out$n_transcription2_transcribed <- length(unique(basename(yamls2)))
-    if (out$n_transcription2_transcribed > 0) {
+    if (out$double_transcription_started) {
       files <- yamls2
       files %>% basename() %>% substr(1, 7) -> yaml_filename_hashes
       loads <- rep(NA, length(files))
@@ -238,7 +238,7 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
       out$transcription2_yamls_valid <- out$transcription2_yamls_named_correctly &
         all(loads) & all(transcriber_ok)
       out$transcription2_complete <- all(pdf_hashes %in% yaml_filename_hashes) &
-        out$transcription2_yamls_valid
+        out$transcription2_yamls_valid & out$scanning_complete
     }
 
     # inspect completed yamls in 3_transcription_merged
@@ -246,7 +246,7 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
     out$n_transcription_merged <- 0
     out$merged_yamls_named_correctly <- NA
     out$merged_yamls_valid <- NA
-    out$transcription_merged_complete <- NA
+    out$transcription_merged_complete <- FALSE
 
     yamls_merged <- list.files("./1_primary_sources/3_transcription_merged/2_yaml",
         pattern = ".yaml", recursive = TRUE, full.names = TRUE)
@@ -266,6 +266,7 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
           if ("stamp_num" %in% names(data)) {
             stamp_ok[i] <- !bad_stamp(data$stamp_num)
           }
+          # test that the reviewer info is present
         }
       }
       if (any(!loads, na.rm = TRUE)) {
@@ -279,14 +280,16 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
       }
       out$merged_yamls_named_correctly <- all(yaml_filename_hashes %in% pdf_hashes)
       out$merged_yamls_valid <- out$merged_yamls_named_correctly & all(loads) & all(transcriber_ok)
-      out$transcription_merged_complete <- all(pdf_hashes %in% yaml_filename_hashes) & out$merged_yamls_valid
-
+      out$transcription_merged_complete <- all(pdf_hashes %in% yaml_filename_hashes) &
+        out$merged_yamls_valid
     }
 
-    if (is.na(out$transcription_merged_complete)) {
-      out$transcription_complete <- out$transcription1_complete
-    } else {
+    # make it switch if EITHER yamls in transcription2 OR transcription_merged
+    # is_double_transcription
+    if (out$double_transcription_started) {
       out$transcription_complete <- out$transcription_merged_complete
+    } else {
+      out$transcription_complete <- out$transcription1_complete
     }
 
     ############################

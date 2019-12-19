@@ -34,35 +34,50 @@ test_that("empty project has correct structure but nothing else", {
   log <- inspect_project("./empty_project", write_reports = FALSE)
   expect_true(log$project_structure_correct)
   expect_false(log$scanning_complete)
-  expect_true(is.na(log$all_pdfs_hashed))
-  expect_true(is.na(log$transcription1_complete))
-  expect_true(is.na(log$transcription2_complete))
-  expect_true(is.na(log$transcription_merged_complete))
-  expect_true(is.na(log$transcription_complete))
+  expect_false(log$double_transcription_started)
+  expect_false(log$transcription1_complete)
+  expect_false(log$transcription2_complete)
+  expect_false(log$transcription_merged_complete)
+  expect_false(log$transcription_complete)
 })
 
 test_that("unfinished are unfinished", {
-  log <- inspect_project("./unfinished_double_transcription", write_reports = FALSE)
-  expect_true(log$project_structure_correct)
-  expect_true(log$all_pdfs_hashed)
-  expect_true(log$transcription1_complete)
-  expect_false(log$transcription2_complete)
-  expect_true(is.na(log$transcription_merged_complete))
-  expect_true(log$transcription_complete)
-
+  # single transcription has begun, but is not finished
   log <- inspect_project("./unfinished_single_transcription", write_reports = FALSE)
   expect_true(log$project_structure_correct)
-  expect_true(log$all_pdfs_hashed)
+  expect_true(log$scanning_complete)
+  expect_false(log$double_transcription_started)
   expect_false(log$transcription1_complete)
-  expect_true(is.na(log$transcription2_complete))
+  expect_false(log$transcription2_complete)
   expect_false(log$transcription_complete)
 
-  log <- inspect_project("./unfinished_scanning_finished_double_transcription", write_reports = FALSE)
+  # double transcription has begun, but is not finished
+  log <- inspect_project("./unfinished_double_transcription", write_reports = FALSE)
   expect_true(log$project_structure_correct)
-  expect_true(log$all_pdfs_hashed)
-  expect_false(log$scanning_complete)
   expect_true(log$transcription1_complete)
-  expect_true(log$transcription2_complete)
-  expect_true(log$transcription_merged_complete)
-  expect_true(log$transcription_complete)
+  expect_true(log$double_transcription_started)
+  expect_false(log$transcription2_complete)
+  expect_false(log$transcription_merged_complete)
+  expect_false(log$transcription_complete)
+
+  # scanning is not complete, but all scans have been transcribed
+  log <- inspect_project("./unfinished_scanning_all_scans_double_transcribed", write_reports = FALSE)
+  expect_true(log$project_structure_correct)
+  expect_false(log$scanning_complete)
+  expect_true(log$double_transcription_started)
+  expect_false(log$transcription1_complete) # because of n_interviews_handcount
+  expect_false(log$transcription2_complete) # because of n_interviews_handcount
+  expect_false(log$transcription_merged_complete) # because of n_interviews_handcount
+  expect_false(log$transcription_complete) # because of n_interviews_handcount
+
+  # scanning is not complete, transcription2 is not complete
+  log <- inspect_project("./unfinished_scanning_unfinished_double_transcription", write_reports = FALSE)
+  expect_true(log$project_structure_correct)
+  expect_false(log$scanning_complete)
+  expect_true(log$double_transcription_started)
+  expect_false(log$transcription1_complete) # because of n_interviews_handcount
+  expect_false(log$transcription2_complete) # because yamls < pdfs
+  expect_false(log$transcription_merged_complete) # because no yamls at all
+  expect_false(log$transcription_complete) # because transcription_merged_complete is false
+
 })
