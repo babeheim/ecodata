@@ -16,6 +16,10 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
   ############################
   # initialize daemon report
 
+# to add:
+# i want the n_pages for each pdf
+# and the n_lines for the lines of each yaml file
+
   out <- list(
     daemon_report_date = Sys.time(),
     project_name = meta$project_name,
@@ -36,9 +40,8 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
   ############################
   # project initialization checks
 
-  # bug: what if the ecodata project is *inside* a git repo but isn't a git repo, e.g. brian's GPSLog
-  out$is_git_repo <- file.exists(".git")
-  out$has_gitignore <- file.exists(".gitignore")
+  out$is_git_repo <- file.exists(".git") | file.exists("../.git")
+  out$has_gitignore <- file.exists(".gitignore") | file.exists("../.gitignore")
   git_set_up <- out$is_git_repo & out$has_gitignore
 
   out$has_metadata_folder <- file.exists("./0_metadata")
@@ -108,14 +111,31 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
       project_files$full_filename <- rownames(project_files)
       project_files$filename <- basename(project_files$full_filename)
       project_files$dirname <- dirname(project_files$full_filename)
-      project_files$type <- substr(project_files$filename, regexpr("\\.",
-        project_files$filename) + 1, nchar(project_files$filename))
+      project_files$extension <- tools::file_ext(project_files$filename)
+
+      project_files$n_lines <- NA
+      project_files$is_plaintext <- tolower(project_files$extension) %in% c("yaml", "r", "csv", "txt")
+      project_files$full_filename[project_files$is_plaintext] %>%
+        map(R.utils::countLines) %>% as.numeric() -> project_files$n_lines[project_files$is_plaintext]
+
+      project_files$n_pages <- NA
+      project_files$is_pdf <- tolower(project_files$extension) %in% c("pdf")
+
+      for (i in 1:nrow(project_files)) {
+        if (project_files$is_pdf[i]) {
+          my_path <- project_files$full_filename[i]
+          call <- paste0("pdfinfo ", my_path,  " | grep 'Pages'")
+          try(project_files$n_pages[i] <- system(call, intern = TRUE))
+        }
+      }
+
+      project_files$n_pages <- as.numeric(gsub("Pages:\\s+", "", project_files$n_pages))
 
       project_files$project_name <- meta$project_name
       project_files$principal_investigator <- meta$principal_investigator
 
       project_files <- select(project_files, project_name, principal_investigator, filename,
-        dirname, type, full_filename, size, ctime)
+        dirname, extension, n_pages, n_lines, full_filename, size, ctime)
 
       if (write_reports) write.csv(project_files,
         file.path(outdir, "project_files.csv"), row.names = FALSE)
@@ -144,7 +164,6 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
     # separate the checks: check that hash inside yaml is same as filename, and also check that yaml has a pdf or whatever
 
     # inspect completed yamls in 2_transcription1
-
     out$n_transcription1_transcribed <- 0
     out$transcription1_yamls_named_correctly <- NA
     out$transcription1_yamls_valid <- NA
@@ -295,7 +314,11 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
     ############################
     # extract interviews.csv data
 
-    if (file.exists("./3_relational_tables/interviews.csv")) {
+    out$has_scrape_yamls <- "scrape_yamls.r" %in% dir("1_primary_sources/2_transcription1")
+
+    out$has_relational_tables <- file.exists("./3_relational_tables/interviews.csv")
+
+    if (out$has_relational_tables) {
 
       ints <- read.csv("./3_relational_tables/interviews.csv", stringsAsFactors = FALSE)
 
