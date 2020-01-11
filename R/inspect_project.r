@@ -20,6 +20,8 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
 # i want the n_pages for each pdf
 # and the n_lines for the lines of each yaml file
 
+# i want to be able to look in 2_transcription1/1_pdf/completed to keep track of yamls too, not just 2_yaml
+
   out <- list(
     daemon_report_date = Sys.time(),
     project_name = meta$project_name,
@@ -118,6 +120,12 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
       project_files$full_filename[project_files$is_plaintext] %>%
         map(R.utils::countLines) %>% as.numeric() -> project_files$n_lines[project_files$is_plaintext]
 
+      project_files$osx_creation_date <- NA
+      for (i in 1:nrow(project_files)) {
+        call <- paste0("GetFileInfo ", project_files$full_filename[i], " | grep 'created'")
+        try(project_files$osx_creation_date[i] <- system(call, intern = TRUE))
+      }
+
       project_files$n_pages <- NA
       project_files$is_pdf <- tolower(project_files$extension) %in% c("pdf")
 
@@ -129,13 +137,16 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
         }
       }
 
+      project_files$osx_creation_date <- gsub("created: ", "", project_files$osx_creation_date)
+      project_files$osx_creation_date <- strptime(project_files$osx_creation_date, "%m/%d/%Y %H:%M:%S")
+
       project_files$n_pages <- as.numeric(gsub("Pages:\\s+", "", project_files$n_pages))
 
       project_files$project_name <- meta$project_name
       project_files$principal_investigator <- meta$principal_investigator
 
       project_files <- select(project_files, project_name, principal_investigator, filename,
-        dirname, extension, n_pages, n_lines, full_filename, size, ctime)
+        dirname, extension, n_pages, n_lines, full_filename, size, ctime, osx_creation_date)
 
       if (write_reports) write.csv(project_files,
         file.path(outdir, "project_files.csv"), row.names = FALSE)
