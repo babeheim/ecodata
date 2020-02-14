@@ -8,15 +8,13 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
     setwd(current_directory)
     stop("0_metadata/project_overview.yaml not found!")
   }
-  meta <- yamltools::read_yaml("./0_metadata/project_overview.yaml")
+  meta <- read_yaml("./0_metadata/project_overview.yaml")
 
   if (is.null(meta$n_interviews_handcount)) meta$n_interviews_handcount <- NA
   if (is.null(meta$interview_date_key)) meta$interview_date_key <- NA
 
   ############################
   # initialize daemon report
-
-# i want to be able to look in 2_transcription1/1_pdf/completed to keep track of yamls too, not just 2_yaml
 
   out <- list(
     daemon_report_date = Sys.time(),
@@ -157,8 +155,6 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
     out$scanning_complete <- FALSE
     if (!is.na(out$n_interviews_unscanned)) out$scanning_complete <- out$n_interviews_handcount == out$n_interviews_scanned
 
-    # separate the checks: check that hash inside yaml is same as filename, and also check that yaml has a pdf or whatever
-
     # inspect completed yamls in 2_transcription1
     out$n_transcription1_transcribed <- 0
     out$transcription1_yamls_named_correctly <- NA
@@ -180,9 +176,9 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
       reviewer_ok <- rep(NA, length(files))
       stamp_ok <- rep(NA, length(files))
       for (i in 1:length(files)) {
-        loads[i] <- yamltools::yaml_loads(files[i])
+        loads[i] <- yaml_loads(files[i])
         if (loads[i]) {
-          data <- yamltools::read_yaml(files[i])
+          data <- read_yaml(files[i])
           transcriber_ok[i] <- !bad_transcriber(data$transcriber)
           if ("stamp_num" %in% names(data)) {
             stamp_ok[i] <- !bad_stamp(data$stamp_num)
@@ -231,9 +227,9 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
       reviewer_ok <- rep(NA, length(files))
       stamp_ok <- rep(NA, length(files))
       for (i in 1:length(files)) {
-        loads[i] <- yamltools::yaml_loads(files[i])
+        loads[i] <- yaml_loads(files[i])
         if (loads[i]) {
-          data <- yamltools::read_yaml(files[i])
+          data <- read_yaml(files[i])
           transcriber_ok[i] <- !bad_transcriber(data$transcriber)
           if ("stamp_num" %in% names(data)) {
             stamp_ok[i] <- !bad_stamp(data$stamp_num)
@@ -274,9 +270,9 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
       reviewer_ok <- rep(NA, length(files))
       stamp_ok <- rep(NA, length(files))
       for (i in 1:length(files)) {
-        loads[i] <- yamltools::yaml_loads(files[i])
+        loads[i] <- yaml_loads(files[i])
         if (loads[i]) {
-          data <- yamltools::read_yaml(files[i])
+          data <- read_yaml(files[i])
           transcriber_ok[i] <- !bad_transcriber(data$transcriber)
           if ("stamp_num" %in% names(data)) {
             stamp_ok[i] <- !bad_stamp(data$stamp_num)
