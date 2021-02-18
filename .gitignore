@@ -1,2 +1,4 @@
 .Rproj.user
 *.pdf
+/tests/testthat/*
+!tests/testthat/test_inspect_project.r

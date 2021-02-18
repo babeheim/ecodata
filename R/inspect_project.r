@@ -8,7 +8,7 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
     setwd(current_directory)
     stop("0_metadata/project_overview.yaml not found!")
   }
-  meta <- read_yaml("./0_metadata/project_overview.yaml")
+  meta <- read_yaml2("./0_metadata/project_overview.yaml")
 
   if (is.null(meta$n_interviews_handcount)) meta$n_interviews_handcount <- NA
   if (is.null(meta$interview_date_key)) meta$interview_date_key <- NA
@@ -178,7 +178,7 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
       for (i in 1:length(files)) {
         loads[i] <- yaml_loads(files[i])
         if (loads[i]) {
-          data <- read_yaml(files[i])
+          data <- read_yaml2(files[i])
           transcriber_ok[i] <- !bad_transcriber(data$transcriber)
           if ("stamp_num" %in% names(data)) {
             stamp_ok[i] <- !bad_stamp(data$stamp_num)
@@ -229,7 +229,7 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
       for (i in 1:length(files)) {
         loads[i] <- yaml_loads(files[i])
         if (loads[i]) {
-          data <- read_yaml(files[i])
+          data <- read_yaml2(files[i])
           transcriber_ok[i] <- !bad_transcriber(data$transcriber)
           if ("stamp_num" %in% names(data)) {
             stamp_ok[i] <- !bad_stamp(data$stamp_num)
@@ -272,7 +272,7 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
       for (i in 1:length(files)) {
         loads[i] <- yaml_loads(files[i])
         if (loads[i]) {
-          data <- read_yaml(files[i])
+          data <- read_yaml2(files[i])
           transcriber_ok[i] <- !bad_transcriber(data$transcriber)
           if ("stamp_num" %in% names(data)) {
             stamp_ok[i] <- !bad_stamp(data$stamp_num)
