@@ -1,0 +1,35 @@
+
+open yaml to extract 'top level' information, pdf_hash, reviewer, transcriber, etc.
+great to have a yaml validity checker that doesnt require a standard folder structure
+
+maybe turn off warnings about incomplete final lien inside yamls
+
+if there is a scrape_yamls in ANY of the 2transcription folders then it should be TRUE
+
+inspect_project doesnt work on a PC!
+write a manual for the ecodata package (for windows and mac)!
+need a yaml tutorial
+incorporate scrape_yamls
+
+# i want to be able to look in 2_transcription1/1_pdf/completed to keep track of yamls too, not just 2_yaml
+    # separate the checks: check that hash inside yaml is same as filename, and also check that yaml has a pdf or whatever
+  files %>% basename() %>% substr(1, 7) -> yaml_filename_hashes # change this to be arbitrary length
+
+      # silke wants the transcriber names for each transcription job separated here!
+
+    # can the yaml be transformed to a json file, and if so, DOES THAT JSON LOAD PROPERLY
+
+          # test that the reviewer info is present
+
+    # make it switch if EITHER yamls in transcription2 OR transcription_merged
+
+      ############################
+  # check relational integrity of tables
+
+  # this has to be customized to the project I suppose...
+  # out$has_relational_integrity <- FALSE
+
+  ############################
+  # report findings
+
+  # some kind of global completion check?
