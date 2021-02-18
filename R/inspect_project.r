@@ -326,6 +326,7 @@ inspect_project <- function(path = ".", write_reports = FALSE, outdir = ".") {
       out$n_transcribers = length(transcribers)
 
       if (length(ints$reviewer) > 0) {
+        ints$reviewer <- as.character(ints$reviewer)
         reviewers <- sort(unique(unlist(strsplit(ints$reviewer, ", "))))
         out$reviewers <- paste(reviewers, collapse = ", ")
         out$n_reviewers = length(reviewers)
