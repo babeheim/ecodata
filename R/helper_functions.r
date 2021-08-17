@@ -106,6 +106,30 @@ Thumbs.db
 *.docx
 *.xls
 
+*.PDF
+*.JPG
+*.xlsx
+*.xlsx alias
+*.wma
+*.mp3
+*.mp4
+*.MP4
+*.MOV
+*.WAV
+*.THM
+*.MTS
+*.bmp
+*.tiff
+*.3gp
+*.LRV
+*.RW2
+*.pkf
+*.psd
+*.wmv
+*.mvp
+*.prproj
+*.jpg.psd
+
 # R Kruft
 *.Rhistory
 *.RData
