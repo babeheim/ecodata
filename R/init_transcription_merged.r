@@ -33,20 +33,20 @@ init_transcription_merged <- function(ignore_capitalizations = TRUE, context = F
   if (context) {
     for (i in 1:length(diffnames)) {
       if (ignore_capitalizations) {
-        system(paste("diff -aiEbw --suppress-common-lines -c", yamls1[i], yamls2[i],
+        system(paste("diff -aibw --suppress-common-lines -c", yamls1[i], yamls2[i],
         ">", diffnames[i])) 
       } else {
-        system(paste("diff -aEbw --suppress-common-lines -c", yamls1[i], yamls2[i],
+        system(paste("diff -abw --suppress-common-lines -c", yamls1[i], yamls2[i],
         ">", diffnames[i])) 
       }
     }
   } else {
     for (i in 1:length(diffnames)) {
       if (ignore_capitalizations) {
-        system(paste("diff -aiEbw --suppress-common-lines", yamls1[i], yamls2[i],
+        system(paste("diff -aibw --suppress-common-lines", yamls1[i], yamls2[i],
         ">", diffnames[i])) 
       } else {
-        system(paste("diff -aEbw --suppress-common-lines", yamls1[i], yamls2[i],
+        system(paste("diff -abw --suppress-common-lines", yamls1[i], yamls2[i],
         ">", diffnames[i])) 
       }
     }
