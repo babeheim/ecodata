@@ -24,7 +24,27 @@ init_transcription_merged <- function(ignore_capitalizations = TRUE, context = F
   yamls1 <- list.files("./2_transcription1/2_yaml", full.names = TRUE)
   yamls2 <- list.files("./2_transcription2/2_yaml", full.names = TRUE)
 
-  file.copy(yamls2, "./3_transcription_merged")
+  for (i in 1:length(yamls2)) {
+    
+    dat1 <- readLines(yamls1[i])
+    dat2 <- readLines(yamls2[i])
+    if (any(grepl("^transcriber\\s*:", dat1))) {
+      t1_location <- grep("^transcriber\\s*:", dat1)
+      dat1[t1_location] <- gsub("^transcriber", "transcriber1", dat1[t1_location])
+    } else {
+      stop("'transcriber' field missing from", yamls1[i])
+    }
+    if (any(grepl("^transcriber\\s*:", dat2))) {
+      t2_location <- grep("^transcriber\\s*:", dat2)
+      dat2[t2_location] <- gsub("^transcriber", "transcriber2", dat2[t2_location])
+      dat2 <- c(dat2[1:(t2_location-1)], dat1[t1_location], dat2[t2_location:length(dat2)])
+    } else {
+      stop("'transcriber' field missing from", yamls2[i])
+    }
+
+    writeLines(dat2, file.path("3_transcription_merged", basename(yamls2[i])))
+
+  }
 
   # create diff comparisons between yamls1 and yamls2
   diffnames <- paste0("./3_transcription_merged/",
