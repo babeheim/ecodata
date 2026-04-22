@@ -1,5 +1,5 @@
 
-rename_pdfs <- function(path) {
+rename_pdfs <- function(path, hash_length = 7) {
 
   files <- list.files(path, pattern="*.pdf|*.PDF", full.names = TRUE, recursive = FALSE)
 
@@ -8,7 +8,7 @@ rename_pdfs <- function(path) {
 
   for(i in 1:length(files)){
       hash <- digest(files[i], algo = "sha1", file = TRUE)
-      hash_name <- paste(substr(hash, 1, 11) ,".pdf", sep = "") 
+      hash_name <- paste(substr(hash, 1, hash_length) ,".pdf", sep = "") 
       hash_name <- file.path(path, hash_name)
       if(files[i] != hash_name){ 
           file.rename(files[i], hash_name)
